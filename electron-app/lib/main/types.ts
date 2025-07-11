@@ -1,8 +1,11 @@
 import type { TargetLanguageCode } from 'deepl-node'
 
+export type WorkingMode = 'deepl' | 'ollama' | 'chatgpt'
+
 export type BackendState = {
-  workingMode: 'deepl' | 'ollama'
+  workingMode: WorkingMode
   ollamaModel: string | null
+  openAIModel: string | null
   translateHistory: HistoryItem[]
 }
 

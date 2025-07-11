@@ -6,6 +6,7 @@ const configPath = path.join(app.getPath('userData'), 'secure-config.json')
 
 type SecureAppConfig = {
   deeplApiKey: string | null
+  openaiApiKey: string | null
 }
 
 export function saveSecureConfig(data: Partial<SecureAppConfig>) {

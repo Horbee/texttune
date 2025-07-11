@@ -10,7 +10,8 @@ const handleIPC = (channel: string, handler: (...args: any[]) => void) => {
 }
 
 export const registerFrontendIPC = (setFixText: (fixText: FixTextFn | null) => void, backendState: BackendState) => {
-  handleIPC('save-api-key', (_e, deeplApiKey: string) => {
+  // DeepL Text Handlers
+  handleIPC('save-deepl-api-key', (_e, deeplApiKey: string) => {
     try {
       saveSecureConfig({ deeplApiKey })
       setFixText(fixTextFactoryDeepl(deeplApiKey))
@@ -19,7 +20,7 @@ export const registerFrontendIPC = (setFixText: (fixText: FixTextFn | null) => v
     }
   })
 
-  handleIPC('delete-api-key', async () => {
+  handleIPC('delete-deepl-api-key', async () => {
     try {
       deleteSecureConfig('deeplApiKey')
       setFixText(null)
@@ -28,9 +29,33 @@ export const registerFrontendIPC = (setFixText: (fixText: FixTextFn | null) => v
     }
   })
 
-  handleIPC('check-api-key', async () => {
+  handleIPC('check-deepl-api-key', async () => {
     const config = getSecureConfig()
     return !!config?.deeplApiKey
+  })
+
+  // OpenAI API Key Handlers
+  handleIPC('save-openai-api-key', (_e, openaiApiKey: string) => {
+    try {
+      saveSecureConfig({ openaiApiKey })
+      setFixText(fixTextFactoryDeepl(openaiApiKey))
+    } catch (error) {
+      throw error
+    }
+  })
+
+  handleIPC('delete-openai-api-key', async () => {
+    try {
+      deleteSecureConfig('openaiApiKey')
+      setFixText(null)
+    } catch (error) {
+      throw error
+    }
+  })
+
+  handleIPC('check-openai-api-key', async () => {
+    const config = getSecureConfig()
+    return !!config?.openaiApiKey
   })
 
   handleIPC('get-backend-state', () => backendState)
@@ -43,6 +68,7 @@ export const registerFrontendIPC = (setFixText: (fixText: FixTextFn | null) => v
     saveConfig({
       workingMode: backendState.workingMode,
       ollamaModel: backendState.ollamaModel,
+      openAIModel: backendState.openAIModel,
     })
   })
 }

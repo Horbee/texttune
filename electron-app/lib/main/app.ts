@@ -7,6 +7,7 @@ import { keyboard, Key } from '@nut-tree-fork/nut-js'
 import { sleep } from '@/lib/main/utils'
 import { fixTextFactory as fixTextFactoryDeepl } from '@/lib/main/deepl-fix'
 import { fixTextFactory as fixTextFactoryOllama } from '@/lib/main/ollama-fix'
+import { fixTextFactory as fixTextFactoryOpenAI } from '@/lib/main/openai-fix'
 import { loadConfig } from '@/lib/main/config'
 
 import type { HistoryItem, BackendState, FixTextFn } from './types'
@@ -15,6 +16,7 @@ let fixText: FixTextFn | null = null
 let backendState: BackendState = {
   workingMode: 'deepl',
   ollamaModel: null,
+  openAIModel: null,
   translateHistory: [] as HistoryItem[],
 }
 
@@ -84,6 +86,45 @@ export const fixSelection = async () => {
         return
       }
       fixText = fixTextFactoryOllama(backendState.ollamaModel)
+    } else if (backendState.workingMode === 'chatgpt') {
+      const config = getSecureConfig()
+      if (!config?.openaiApiKey) {
+        broadcastToAll({
+          type: 'ERROR',
+          title: 'No API key found',
+          message: 'Please enter a valid OpenAI API key first.',
+        })
+        new Notification({
+          title: 'Text Tune',
+          body: 'No OpenAI API key found, enter a valid key first.',
+        })
+          .on('click', () => {
+            createOrShowWindow()
+            broadcastToAll({ type: 'FOCUS_API_KEY_INPUT' })
+          })
+          .show()
+        console.log('No OpenAI API key found')
+        return
+      }
+      if (!backendState.openAIModel) {
+        broadcastToAll({
+          type: 'ERROR',
+          title: 'No model selected',
+          message: 'Please select a model first.',
+        })
+        new Notification({
+          title: 'Text Tune',
+          body: 'No model selected, please select a model first.',
+        })
+          .on('click', () => {
+            createOrShowWindow()
+            broadcastToAll({ type: 'FOCUS_MODEL_SELECTOR' })
+          })
+          .show()
+        console.log('No model selected')
+        return
+      }
+      fixText = fixTextFactoryOpenAI(backendState.openAIModel, config.openaiApiKey)
     }
   }
 
@@ -169,6 +210,7 @@ export function createAppWindow(): void {
   const config = loadConfig()
   backendState.workingMode = config.workingMode
   backendState.ollamaModel = config.ollamaModel
+  backendState.openAIModel = config.openAIModel
 
   const mainWindow = new BrowserWindow({
     width: 800,
@@ -202,7 +244,7 @@ export function createAppWindow(): void {
   }
 }
 
-function createOrShowWindow() {
+export function createOrShowWindow() {
   if (BrowserWindow.getAllWindows().length === 0) {
     createAppWindow()
   } else {

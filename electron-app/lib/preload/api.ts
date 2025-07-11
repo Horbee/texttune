@@ -3,11 +3,14 @@ import { ipcRenderer } from 'electron'
 import type { BackendState, HistoryItem } from '@/lib/main/types'
 
 interface InvokeInterface {
-  (channel: 'check-api-key'): Promise<boolean>
+  (channel: 'save-deepl-api-key', apiKey: string): Promise<void>
+  (channel: 'delete-deepl-api-key'): Promise<void>
+  (channel: 'check-deepl-api-key'): Promise<boolean>
+  (channel: 'save-openai-api-key', apiKey: string): Promise<void>
+  (channel: 'delete-openai-api-key'): Promise<void>
+  (channel: 'check-openai-api-key'): Promise<boolean>
   (channel: 'get-backend-state'): Promise<BackendState>
   (channel: 'set-backend-state', state: Partial<BackendState>): Promise<void>
-  (channel: 'save-api-key', apiKey: string): Promise<void>
-  (channel: 'delete-api-key'): Promise<void>
 }
 type ListenChannel = 'message-from-main'
 interface ReceiveInterface {

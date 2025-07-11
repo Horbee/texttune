@@ -1,12 +1,14 @@
 import { app } from 'electron'
 import fs from 'fs'
 import path from 'path'
+import { WorkingMode } from './types'
 
 const configPath = path.join(app.getPath('userData'), 'config.json')
 
 type AppConfig = {
-  workingMode: 'deepl' | 'ollama'
+  workingMode: WorkingMode
   ollamaModel: string | null
+  openAIModel: string | null
   backgroundNotificationShown: boolean
 }
 
@@ -23,6 +25,7 @@ export function loadConfig(): AppConfig {
     const initialConfig: AppConfig = {
       workingMode: 'deepl',
       ollamaModel: null,
+      openAIModel: null,
       backgroundNotificationShown: false,
     }
     return initialConfig
